@@ -1,0 +1,5 @@
+* text=auto
+# Files copied into WebGL builds are checked by SHA-256, so keep them byte-identical on every checkout.
+Packages/com.ryuchan00.local-llm/WebLLM~/** -text
+*.ttf binary
+*.png binary
