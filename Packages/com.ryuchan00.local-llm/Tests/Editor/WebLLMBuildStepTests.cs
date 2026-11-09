@@ -40,6 +40,17 @@ namespace LocalLLM.Tests
         }
 
         [Test]
+        public void Sha256Hex_IgnoresCrlfConversion()
+        {
+            var lf = Path.Combine(temp, "lf.js");
+            var crlf = Path.Combine(temp, "crlf.js");
+            File.WriteAllText(lf, "a" + (char)10 + "b" + (char)10);
+            File.WriteAllText(crlf, "a" + (char)13 + (char)10 + "b" + (char)13 + (char)10);
+
+            Assert.AreEqual(WebLLMBuildStep.Sha256Hex(lf), WebLLMBuildStep.Sha256Hex(crlf));
+        }
+
+        [Test]
         public void CopyTo_CopiesLoaderWebLLMAndLicense()
         {
             WebLLMBuildStep.CopyTo(temp);

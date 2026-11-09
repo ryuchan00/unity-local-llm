@@ -22,11 +22,13 @@ namespace LocalLLM.Editor
         internal const string LoaderFile = "local-llm-loader.js";
         const string ForceOllamaDefine = "LOCALLLM_FORCE_OLLAMA";
 
-        // SHA-256 of every file copied into builds. web-llm.js is lib/index.js of @mlc-ai/web-llm 0.2.86
-        // from the npm registry; the loader holds the model pins. Update these when changing the files.
+        // SHA-256 of every file copied into builds, computed with CRLF normalized to LF: Package Manager's git
+        // checkout may convert line endings regardless of .gitattributes. web-llm.js is lib/index.js of
+        // @mlc-ai/web-llm 0.2.86 from the npm registry; the loader holds the model pins.
+        // Update these when changing the files; tools/vendor_webllm.py prints the value for web-llm.js.
         internal static readonly IReadOnlyDictionary<string, string> Sha256 = new Dictionary<string, string>
         {
-            [WebLLMFile] = "ae2642e73a4a9896c21efb3a067c4666446f8b49cbe2012f4b576f5d83d5f206",
+            [WebLLMFile] = "4c9772f6973eb03b2499c2128a71a2f9cfb542321dc4ef01a66de4a9f376c66f",
             [LoaderFile] = "0f6819e21b041f68e62acb6c81caaa5ca75eecf2513f99f9a21687e45c6cee97",
             ["web-llm.LICENSE.txt"] = "87935f332472db09253871326ef23d5d6a45f4fd2e6c96772f72052866dfab0d",
         };
@@ -77,11 +79,21 @@ namespace LocalLLM.Editor
                     "Reinstall the package; do not ship a modified file.");
         }
 
+        const byte CR = 13;
+        const byte LF = 10;
+
+        /// <summary>SHA-256 of the file with CRLF normalized to LF, so it is stable across git line-ending settings.</summary>
         internal static string Sha256Hex(string path)
         {
+            var bytes = File.ReadAllBytes(path);
+            var normalized = new List<byte>(bytes.Length);
+            for (var i = 0; i < bytes.Length; i++)
+            {
+                if (bytes[i] == CR && i + 1 < bytes.Length && bytes[i + 1] == LF) continue;
+                normalized.Add(bytes[i]);
+            }
             using (var sha = SHA256.Create())
-            using (var stream = File.OpenRead(path))
-                return string.Concat(sha.ComputeHash(stream).Select(b => b.ToString("x2")));
+                return string.Concat(sha.ComputeHash(normalized.ToArray()).Select(b => b.ToString("x2")));
         }
     }
 }

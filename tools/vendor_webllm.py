@@ -3,7 +3,7 @@
 Usage: python tools/vendor_webllm.py 0.2.86
 
 Checks the tarball against the registry's SHA-512 integrity before extracting, then prints the
-SHA-256 to record in WebLLMBuildStep.cs and Third Party Notices.md. The registry supplies both the
+SHA-256 (with CRLF normalized to LF) to record in WebLLMBuildStep.cs and Third Party Notices.md. The registry supplies both the
 tarball and its integrity, so also compare the result with the release on GitHub before committing. Uses only the standard library.
 """
 import base64
@@ -50,7 +50,8 @@ def main(version: str) -> None:
     (DEST / "web-llm.LICENSE.txt").write_bytes(license_text)
     print(f"Vendored {PACKAGE}@{version}")
     print(f"npm integrity: {integrity}")
-    print(f"SHA-256 of web-llm.js: {hashlib.sha256(bundle).hexdigest()}")
+    normalized = bundle.replace(b"\r\n", b"\n")
+    print(f"SHA-256 of web-llm.js, CRLF normalized to LF (WebLLMBuildStep.cs): {hashlib.sha256(normalized).hexdigest()}")
 
 
 if __name__ == "__main__":

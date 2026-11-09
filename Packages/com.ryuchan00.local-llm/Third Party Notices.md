@@ -10,7 +10,7 @@ This package includes the following third-party software.
 - Copyright: the MLC LLM and WebLLM contributors
 - Retrieved from: https://registry.npmjs.org/@mlc-ai/web-llm/-/web-llm-0.2.86.tgz
 - npm integrity of the tarball (verified before extraction): `sha512-plciXBCYtY7iTKHzEcsqOfSO+s5u8NqMYFPnHmRbsN8CEdKcolgXIoGLPbzO6FtJHV43m7YP00x6qQ6Kb8CJJw==`
-- SHA-256 of `web-llm.js` (checked on every WebGL build): `ae2642e73a4a9896c21efb3a067c4666446f8b49cbe2012f4b576f5d83d5f206`
+- SHA-256 of `web-llm.js` with CRLF normalized to LF (checked on every WebGL build): `4c9772f6973eb03b2499c2128a71a2f9cfb542321dc4ef01a66de4a9f376c66f`
 
 The file is unmodified. It bundles its dependency `loglevel` (MIT License, Copyright (c) 2013 Tim Perry).
 
