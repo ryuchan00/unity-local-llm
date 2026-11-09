@@ -113,6 +113,7 @@ var options = ChatOptions.Default
 | `OllamaTimeoutSeconds` | `600` | Includes loading the model. `0` waits forever. Reported as `ChatErrorKind.Timeout`. |
 | `WebLLMModel` | `Qwen2.5-1.5B-Instruct-q4f16_1-MLC` | Falls back to the `q4f32_1` variant on GPUs without `shader-f16`. |
 | `WebLLMAppConfigJson` | empty | A full WebLLM `appConfig`, e.g. to self-host the model. Treat it like code; see Security. |
+| `WebLLMBaseUrl` | empty | Folder serving `local-llm-loader.js` and `web-llm.js`. Empty uses `StreamingAssets/local-llm/`. Set it if your host cannot serve StreamingAssets, and serve those files from an origin you control. |
 
 Define `LOCALLLM_FORCE_OLLAMA` to make a WebGL build use Ollama instead of WebLLM (for testing on machines without WebGPU).
 

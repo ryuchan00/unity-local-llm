@@ -119,6 +119,7 @@ var options = ChatOptions.Default
 | `OllamaTimeoutSeconds` | `600` | モデルの読み込みも含みます。`0` なら待ち続けます。超えると `ChatErrorKind.Timeout` になります。 |
 | `WebLLMModel` | `Qwen2.5-1.5B-Instruct-q4f16_1-MLC` | `shader-f16` に対応しない GPU では `q4f32_1` 版に切り替えます。 |
 | `WebLLMAppConfigJson` | 空 | WebLLM の `appConfig` 全体。モデルを自分のサーバーから配信するときに使います。コードと同じ扱いが必要です（セキュリティの節）。 |
+| `WebLLMBaseUrl` | 空 | `local-llm-loader.js` と `web-llm.js` を置いたフォルダの URL。空なら `StreamingAssets/local-llm/` です。配信先が StreamingAssets を扱えない場合に、自分で管理しているオリジンを指定してください。 |
 
 `LOCALLLM_FORCE_OLLAMA` を定義すると、WebGL 版でも WebLLM の代わりに Ollama を使います（WebGPU のない PC で試すとき用）。
 

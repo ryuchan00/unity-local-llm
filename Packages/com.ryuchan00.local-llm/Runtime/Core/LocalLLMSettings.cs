@@ -28,6 +28,9 @@ namespace LocalLLM
         [SerializeField] string webLLMModel = DefaultWebLLMModel;
         [Tooltip("Optional WebLLM appConfig JSON, e.g. to serve the model from your own server. Empty uses the built-in, pinned config.")]
         [SerializeField, TextArea(2, 6)] string webLLMAppConfigJson = string.Empty;
+        [Tooltip("URL of the folder holding local-llm-loader.js and web-llm.js. Empty uses StreamingAssets/local-llm/, " +
+                 "which the build step fills. Set it when your host cannot serve StreamingAssets.")]
+        [SerializeField] string webLLMBaseUrl = string.Empty;
 
         public LocalLLMSettings() { }
 
@@ -38,7 +41,8 @@ namespace LocalLLM
             int ollamaContextLength = 4096,
             int ollamaTimeoutSeconds = 600,
             string webLLMModel = DefaultWebLLMModel,
-            string webLLMAppConfigJson = "")
+            string webLLMAppConfigJson = "",
+            string webLLMBaseUrl = "")
         {
             if (ollamaContextLength < 0) throw new ArgumentOutOfRangeException(nameof(ollamaContextLength));
             if (ollamaTimeoutSeconds < 0) throw new ArgumentOutOfRangeException(nameof(ollamaTimeoutSeconds));
@@ -49,6 +53,7 @@ namespace LocalLLM
             this.ollamaContextLength = ollamaContextLength;
             this.webLLMModel = webLLMModel;
             this.webLLMAppConfigJson = webLLMAppConfigJson;
+            this.webLLMBaseUrl = webLLMBaseUrl;
         }
 
         public string OllamaUrl => ollamaUrl;
@@ -58,5 +63,6 @@ namespace LocalLLM
         public int OllamaTimeoutSeconds => ollamaTimeoutSeconds;
         public string WebLLMModel => webLLMModel;
         public string WebLLMAppConfigJson => webLLMAppConfigJson;
+        public string WebLLMBaseUrl => webLLMBaseUrl;
     }
 }

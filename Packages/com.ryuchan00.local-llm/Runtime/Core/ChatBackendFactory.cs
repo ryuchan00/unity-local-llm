@@ -19,7 +19,7 @@ namespace LocalLLM
         {
             if (settings == null) throw new ArgumentNullException(nameof(settings));
             return UsesWebLLM
-                ? new WebLLMBackend(settings.WebLLMModel, appConfigJson: settings.WebLLMAppConfigJson)
+                ? new WebLLMBackend(settings.WebLLMModel, settings.WebLLMBaseUrl, settings.WebLLMAppConfigJson)
                 : (IChatBackend)new OllamaBackend(
                     settings.OllamaUrl, settings.OllamaModel, settings.OllamaKeepAlive,
                     settings.OllamaContextLength, settings.OllamaTimeoutSeconds);
