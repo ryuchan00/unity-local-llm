@@ -1,0 +1,5 @@
+{
+    "name": "LocalLLM.Samples.Chat",
+    "rootNamespace": "LocalLLM.Samples",
+    "references": ["LocalLLM.Runtime"]
+}

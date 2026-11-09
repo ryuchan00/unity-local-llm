@@ -1,0 +1,35 @@
+{
+  "name": "com.ryuchan00.local-llm",
+  "version": "0.1.0",
+  "displayName": "Local LLM (Ollama + WebLLM)",
+  "description": "Chat with a local LLM from Unity. Uses Ollama in the Editor and standalone builds, and runs the model inside the browser with WebLLM (WebGPU) in WebGL builds, behind one C# interface.",
+  "unity": "2022.3",
+  "license": "MIT",
+  "author": {
+    "name": "ryuchan00",
+    "url": "https://github.com/ryuchan00"
+  },
+  "documentationUrl": "https://github.com/ryuchan00/unity-local-llm#readme",
+  "changelogUrl": "https://github.com/ryuchan00/unity-local-llm/blob/main/Packages/com.ryuchan00.local-llm/CHANGELOG.md",
+  "licensesUrl": "https://github.com/ryuchan00/unity-local-llm/blob/main/Packages/com.ryuchan00.local-llm/LICENSE.md",
+  "keywords": [
+    "llm",
+    "ai",
+    "chat",
+    "ollama",
+    "webllm",
+    "webgpu",
+    "webgl"
+  ],
+  "dependencies": {
+    "com.unity.modules.jsonserialize": "1.0.0",
+    "com.unity.modules.unitywebrequest": "1.0.0"
+  },
+  "samples": [
+    {
+      "displayName": "Chat",
+      "description": "A minimal chat screen (IMGUI) that works in the Editor, standalone and WebGL builds.",
+      "path": "Samples~/Chat"
+    }
+  ]
+}

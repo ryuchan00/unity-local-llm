@@ -1,0 +1,6 @@
+{
+    "name": "LocalLLM.Runtime",
+    "rootNamespace": "LocalLLM",
+    "references": [],
+    "autoReferenced": true
+}
