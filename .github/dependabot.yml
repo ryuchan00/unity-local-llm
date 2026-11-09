@@ -1,0 +1,9 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    # Give new releases time to be vetted before proposing them.
+    cooldown:
+      default-days: 14

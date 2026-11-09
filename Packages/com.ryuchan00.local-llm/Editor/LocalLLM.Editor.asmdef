@@ -1,0 +1,6 @@
+{
+    "name": "LocalLLM.Editor",
+    "rootNamespace": "LocalLLM.Editor",
+    "references": ["LocalLLM.Runtime"],
+    "includePlatforms": ["Editor"]
+}

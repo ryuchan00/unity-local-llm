@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- No inline scripts and no eval. wasm-unsafe-eval lets Unity and WebLLM compile WebAssembly.
+       connect-src lists where the model is downloaded from: huggingface.co redirects weights to its *.hf.co CDN.
+       frame-ancestors cannot be set from a meta tag; send it as a header if your host allows. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'self' data: blob:; worker-src 'self' blob:; connect-src 'self' https://huggingface.co https://*.hf.co https://raw.githubusercontent.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>Local LLM for Unity - WebGL demo</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Local LLM for Unity</h1>
+    <p>
+      This Unity WebGL build runs a small language model (Qwen2.5 1.5B) entirely in your browser with
+      <a href="https://github.com/mlc-ai/web-llm">WebLLM</a> and WebGPU. Your messages never leave your machine.
+      Requires a recent desktop Chrome or Edge. The first load downloads about 1 GB.
+    </p>
+    <p><a href="https://github.com/ryuchan00/unity-local-llm">Source and documentation on GitHub</a></p>
+  </header>
+  <main>
+    <div id="unity-container">
+      <canvas id="unity-canvas" tabindex="-1"
+        data-loader="Build/{{{ LOADER_FILENAME }}}"
+        data-data="Build/{{{ DATA_FILENAME }}}"
+        data-framework="Build/{{{ FRAMEWORK_FILENAME }}}"
+        data-code="Build/{{{ CODE_FILENAME }}}"
+        data-company="{{{ COMPANY_NAME }}}"
+        data-product="{{{ PRODUCT_NAME }}}"
+        data-version="{{{ PRODUCT_VERSION }}}"></canvas>
+      <div id="unity-loading">Loading Unity... <span id="unity-progress">0%</span></div>
+      <div id="unity-error" hidden></div>
+    </div>
+  </main>
+  <script src="Build/{{{ LOADER_FILENAME }}}"></script>
+  <script src="main.js"></script>
+</body>
+</html>
