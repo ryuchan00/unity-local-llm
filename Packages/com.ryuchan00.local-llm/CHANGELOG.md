@@ -3,6 +3,12 @@
 All notable changes to this package are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the package uses [Semantic Versioning](https://semver.org/).
 
+## [0.1.1] - 2026-11-10
+
+### Fixed
+
+- WebLLM failed to load on hosts that serve `.js` files as `application/octet-stream` (such as unityroom), because browsers refuse to run such a file as a module script. The library now fetches the two files, checks their SHA-256, and runs them from `blob:` URLs instead.
+
 ## [0.1.0] - 2026-11-09
 
 ### Added

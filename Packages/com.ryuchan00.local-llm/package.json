@@ -1,6 +1,6 @@
 {
   "name": "com.ryuchan00.local-llm",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "displayName": "Local LLM (Ollama + WebLLM)",
   "description": "Chat with a local LLM from Unity. Uses Ollama in the Editor and standalone builds, and runs the model inside the browser with WebLLM (WebGPU) in WebGL builds, behind one C# interface.",
   "unity": "2022.3",

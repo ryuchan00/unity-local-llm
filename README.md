@@ -30,7 +30,7 @@ Chat with a local LLM from Unity through one C# interface:
 In Package Manager, choose **Add package from git URL** and enter:
 
 ```
-https://github.com/ryuchan00/unity-local-llm.git?path=Packages/com.ryuchan00.local-llm#v0.1.0
+https://github.com/ryuchan00/unity-local-llm.git?path=Packages/com.ryuchan00.local-llm#v0.1.1
 ```
 
 Tags are protected in this repository, but for the strongest guarantee pin a commit instead of a tag:
@@ -134,6 +134,7 @@ Neither engine has an explicit caching API, but both reuse the computation for a
 - **One backend at a time**: jslib callbacks are static, so create a single `WebLLMBackend` and dispose it before creating another.
 - **Content Security Policy**: no `eval` or inline script is needed. The demo page uses `script-src 'self' 'wasm-unsafe-eval'`; see [its template](Assets/WebGLTemplates/LocalLLM/index.html).
 - **Hosting**: if you use Unity's compression, serve the build with a `Content-Encoding` header. The decompression fallback loads the framework from a `blob:` URL, which `script-src 'self'` blocks. The demo is built uncompressed and relies on GitHub Pages compressing responses.
+- **Hosts that serve `.js` as `application/octet-stream`** (such as unityroom): browsers refuse to run such a file as a module. The library then fetches `local-llm-loader.js` and `web-llm.js`, checks them against the same SHA-256 as the build step, and runs them from `blob:` URLs. A page with a Content Security Policy needs `blob:` in `script-src` for this.
 
 ## Security
 
