@@ -30,6 +30,17 @@ namespace LocalLLM.Tests
             Assert.DoesNotThrow(() => WebLLMBuildStep.Verify(path, file));
         }
 
+        // The jslib checks these hashes itself when it has to load the files through blob: URLs.
+        [TestCase("web-llm.js")]
+        [TestCase("local-llm-loader.js")]
+        public void Jslib_RecordsSameHash(string file)
+        {
+            var jslib = File.ReadAllText(Path.Combine(
+                Path.GetDirectoryName(WebLLMBuildStep.SourceDirectory()), "Runtime", "WebLLM", "Plugins", "LocalLLM.jslib"));
+
+            StringAssert.Contains($"\"{file}\": \"{WebLLMBuildStep.Sha256[file]}\"", jslib);
+        }
+
         [Test]
         public void Verify_RejectsModifiedFile()
         {

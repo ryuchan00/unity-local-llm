@@ -2,6 +2,9 @@
 // Written in ES5 style so the Emscripten library preprocessor accepts it.
 // WebLLM is loaded with a <script type="module"> element pointing at local-llm-loader.js,
 // which the build step copies into StreamingAssets. No eval, no inline script, no CDN.
+// Some hosts serve .js as application/octet-stream, which browsers refuse to run as a module.
+// Only then are the files fetched, checked against the hashes below, and run from blob: URLs instead
+// (the build step already checked the same hashes before copying, which covers the direct path).
 var LocalLLMPlugin = {
   $LocalLLM: {
     // Keep in sync with WebLLMEvent in WebLLMProtocol.cs.
@@ -14,6 +17,13 @@ var LocalLLMPlugin = {
     CACHE_STATUS: 6,
     CACHE_DELETED: 7,
     CACHE_ERROR: 8,
+
+    // SHA-256 with CRLF normalized to LF. Keep in sync with WebLLMBuildStep.Sha256 (a test checks).
+    SHA256: {
+      "web-llm.js": "4c9772f6973eb03b2499c2128a71a2f9cfb542321dc4ef01a66de4a9f376c66f",
+      "local-llm-loader.js": "0f6819e21b041f68e62acb6c81caaa5ca75eecf2513f99f9a21687e45c6cee97"
+    },
+    WEBLLM_IMPORT: "\"./web-llm.js\"",
 
     callback: 0,
     baseUrl: "",
@@ -40,28 +50,87 @@ var LocalLLMPlugin = {
 
     loadModule: function () {
       if (LocalLLM.modulePromise) return LocalLLM.modulePromise;
-      var promise = new Promise(function (resolve, reject) {
-        if (globalThis.LocalLLMWebLLM) {
-          resolve(globalThis.LocalLLMWebLLM);
-          return;
-        }
-        var script = document.createElement("script");
-        script.type = "module";
-        script.src = new URL("local-llm-loader.js", LocalLLM.baseUrl).href;
-        // A module script fires load after it has run.
-        script.onload = function () {
-          if (globalThis.LocalLLMWebLLM) resolve(globalThis.LocalLLMWebLLM);
-          else reject(new Error("local-llm-loader.js did not initialize"));
-        };
-        script.onerror = function () {
-          reject(new Error("Could not load " + script.src + ". Was the WebGL build made with the package's build step?"));
-        };
-        document.head.appendChild(script);
-      });
+      var url = new URL("local-llm-loader.js", LocalLLM.baseUrl).href;
+      var promise = globalThis.LocalLLMWebLLM
+        ? Promise.resolve(globalThis.LocalLLMWebLLM)
+        : LocalLLM.runModule(url).catch(function (direct) {
+            // A loader that ran but did not initialize is not retried; running it twice could double-initialize.
+            if (!direct.loadFailed) throw direct;
+            return LocalLLM.loadFromBlobs().catch(function (fallback) {
+              throw new Error("Could not load " + url + " (" + LocalLLM.errorText(direct) + "; then " +
+                LocalLLM.errorText(fallback) + "). Was the WebGL build made with the package's build step? " +
+                "If the page has a Content Security Policy, its script-src needs blob: for hosts that serve .js as octet-stream.");
+            });
+          });
       // Allow a retry after a failed load.
       promise.catch(function () { LocalLLM.modulePromise = null; });
       LocalLLM.modulePromise = promise;
       return promise;
+    },
+
+    runModule: function (src) {
+      return new Promise(function (resolve, reject) {
+        var script = document.createElement("script");
+        script.type = "module";
+        script.src = src;
+        // A module script fires load after it has run.
+        script.onload = function () {
+          script.remove();
+          if (globalThis.LocalLLMWebLLM) resolve(globalThis.LocalLLMWebLLM);
+          else reject(new Error("local-llm-loader.js did not initialize"));
+        };
+        script.onerror = function () {
+          script.remove();
+          var error = new Error("the module script failed to load");
+          error.loadFailed = true;
+          reject(error);
+        };
+        document.head.appendChild(script);
+      });
+    },
+
+    // Runs the same two files from blob: URLs, after checking their hashes, so the host's MIME type does not matter.
+    loadFromBlobs: function () {
+      return Promise.all([LocalLLM.fetchVerified("local-llm-loader.js"), LocalLLM.fetchVerified("web-llm.js")])
+        .then(function (texts) {
+          if (texts[0].indexOf(LocalLLM.WEBLLM_IMPORT) < 0) throw new Error("local-llm-loader.js does not import web-llm.js");
+          var libUrl = LocalLLM.blobUrl(texts[1]);
+          var loaderUrl = LocalLLM.blobUrl(texts[0].split(LocalLLM.WEBLLM_IMPORT).join(JSON.stringify(libUrl)));
+          var revoke = function () {
+            URL.revokeObjectURL(loaderUrl);
+            URL.revokeObjectURL(libUrl);
+          };
+          return LocalLLM.runModule(loaderUrl).then(
+            function (lib) { revoke(); return lib; },
+            function (e) { revoke(); throw e; });
+        });
+    },
+
+    blobUrl: function (text) {
+      return URL.createObjectURL(new Blob([text], { type: "text/javascript" }));
+    },
+
+    // Resolves to the file's text with CRLF normalized to LF, or rejects if its hash is not the recorded one.
+    fetchVerified: function (file) {
+      if (!globalThis.crypto || !crypto.subtle) {
+        return Promise.reject(new Error("checking " + file + " needs a secure context (https)"));
+      }
+      // no-cache: a copy cached before a package update would fail the hash check.
+      return fetch(new URL(file, LocalLLM.baseUrl).href, { credentials: "same-origin", cache: "no-cache" })
+        .then(function (response) {
+          if (!response.ok) throw new Error(file + ": HTTP " + response.status);
+          return response.arrayBuffer();
+        })
+        .then(function (buffer) {
+          var text = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(buffer).replace(/\r\n/g, "\n");
+          return crypto.subtle.digest("SHA-256", new TextEncoder().encode(text)).then(function (digest) {
+            var hex = Array.prototype.map.call(new Uint8Array(digest), function (b) {
+              return ("0" + b.toString(16)).slice(-2);
+            }).join("");
+            if (hex !== LocalLLM.SHA256[file]) throw new Error(file + " does not match the bundled file");
+            return text;
+          });
+        });
     },
 
     // q4f16 models need the shader-f16 GPU feature; fall back to the f32 variant without it.

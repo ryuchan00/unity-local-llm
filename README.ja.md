@@ -31,7 +31,7 @@ Unity から、手元で動く LLM と会話するためのパッケージです
 Package Manager の **Add package from git URL** に、次の URL を入れます。
 
 ```
-https://github.com/ryuchan00/unity-local-llm.git?path=Packages/com.ryuchan00.local-llm#v0.1.0
+https://github.com/ryuchan00/unity-local-llm.git?path=Packages/com.ryuchan00.local-llm#v0.1.1
 ```
 
 このリポジトリのタグは保護していますが、より確実にするなら、タグの代わりにコミットのハッシュを指定してください。
@@ -143,6 +143,7 @@ WebLLM のデモでも、2 回目の発言ではプロンプトのうち新し�
 - **同時に使えるのは一つ**：jslib のコールバックは static なので、`WebLLMBackend` は一つだけ作ってください。作り直すときは、前のものを `Dispose` してください。
 - **Content Security Policy**：`eval` もインラインスクリプトも要りません。デモのページは `script-src 'self' 'wasm-unsafe-eval'` で動いています。[テンプレート](Assets/WebGLTemplates/LocalLLM/index.html)を参考にしてください。
 - **配信**：Unity の圧縮を使う場合は、`Content-Encoding` を返せるサーバーで配信してください。展開の代替処理（decompression fallback）は `blob:` の URL からスクリプトを読み込むので、`script-src 'self'` と両立しません。デモは圧縮せずに出力し、GitHub Pages 側の圧縮に任せています。
+- **`.js` を `application/octet-stream` で返す配信先**（unityroom など）：ブラウザはこの種類のファイルをモジュールとして実行しません。その場合、ライブラリは `local-llm-loader.js` と `web-llm.js` を取得し、ビルド後の処理と同じ SHA-256 で照合してから、`blob:` の URL から実行します。CSP を設定したページでは、このために `script-src` に `blob:` が必要です。
 
 ## セキュリティ
 
